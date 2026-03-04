@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "CommonJS",
+    "strict": true,
+    "outDir": "./1_dist",
+    "skipLibCheck": true
+  },
+  "include": ["./1_rulare.ts"]
+}
