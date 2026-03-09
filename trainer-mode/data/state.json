@@ -1,0 +1,40 @@
+{
+  "profile": {
+    "name": "Xan",
+    "timezone": "Europe/Bucharest",
+    "goal": "Master the 20% highest-probability interview theory topics"
+  },
+  "schedule": {
+    "monday": [["09:00", "21:30"]],
+    "tuesday": [["16:00", "22:00"]],
+    "wednesday": [["16:00", "22:00"]],
+    "thursday": [["16:00", "22:00"]],
+    "friday": [["18:00", "21:00"]],
+    "saturday": [["10:00", "14:00"]],
+    "sunday": [["10:00", "13:00"]]
+  },
+  "concepts": [
+    { "id": "inheritance", "name": "Inheritance", "priority": "core", "dealBreaker": true, "mastery": 62, "lastReviewed": "2026-03-03", "nextReview": "2026-03-10" },
+    { "id": "composition-di", "name": "Composition vs DI", "priority": "core", "dealBreaker": true, "mastery": 68, "lastReviewed": "2026-03-04", "nextReview": "2026-03-09" },
+    { "id": "encapsulation", "name": "Encapsulation", "priority": "core", "dealBreaker": true, "mastery": 64, "lastReviewed": "2026-03-03", "nextReview": "2026-03-10" },
+    { "id": "abstraction", "name": "Abstraction", "priority": "core", "dealBreaker": true, "mastery": 65, "lastReviewed": "2026-03-03", "nextReview": "2026-03-10" },
+    { "id": "polymorphism", "name": "Polymorphism", "priority": "core", "dealBreaker": true, "mastery": 61, "lastReviewed": "2026-03-03", "nextReview": "2026-03-09" },
+    { "id": "static-vs-instance", "name": "Static vs Instance Methods", "priority": "core", "dealBreaker": false, "mastery": 58, "lastReviewed": "2026-03-03", "nextReview": "2026-03-10" },
+    { "id": "immutability", "name": "Immutability", "priority": "core", "dealBreaker": false, "mastery": 57, "lastReviewed": "2026-03-03", "nextReview": "2026-03-10" },
+    { "id": "di-dip", "name": "Dependency Injection vs Dependency Inversion", "priority": "core", "dealBreaker": true, "mastery": 72, "lastReviewed": "2026-03-04", "nextReview": "2026-03-11" },
+    { "id": "srp", "name": "Single Responsibility Principle", "priority": "core", "dealBreaker": true, "mastery": 35, "lastReviewed": null, "nextReview": "2026-03-09" },
+    { "id": "singleton", "name": "Singleton", "priority": "nice", "dealBreaker": false, "mastery": 28, "lastReviewed": null, "nextReview": "2026-03-09" }
+  ],
+  "tasks": [
+    { "id": "t1", "title": "Active recall: Composition vs DI", "conceptId": "composition-di", "status": "todo", "type": "recall", "estimateMin": 20 },
+    { "id": "t2", "title": "Explain DIP in 2 examples", "conceptId": "di-dip", "status": "todo", "type": "deal-breaker", "estimateMin": 25 },
+    { "id": "t3", "title": "SRP first pass", "conceptId": "srp", "status": "todo", "type": "new", "estimateMin": 25 },
+    { "id": "t4", "title": "Singleton pitfalls", "conceptId": "singleton", "status": "todo", "type": "nice", "estimateMin": 15 }
+  ],
+  "checkins": [],
+  "meta": {
+    "lastStudyAt": null,
+    "lastAiFeedbackAt": null,
+    "lastReminderAt": null
+  }
+}

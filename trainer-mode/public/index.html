@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Trainer Mode</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <header>
+      <h1>Trainer Mode</h1>
+      <div class="sub" id="headerSub"></div>
+    </header>
+
+    <main>
+      <section class="panel">
+        <div class="kpis">
+          <div class="kpi"><div class="v" id="readiness">-</div><div class="l">Readiness</div></div>
+          <div class="kpi"><div class="v" id="coverage">-</div><div class="l">Deal-Breaker Coverage</div></div>
+          <div class="kpi"><div class="v" id="hoursGap">-</div><div class="l">Hours Since Last Study</div></div>
+          <div class="kpi"><div class="v" id="windowState">-</div><div class="l">Learning Window</div></div>
+        </div>
+
+        <h3>Today's Tasks</h3>
+        <div class="grid3">
+          <div class="col" data-status="todo"><h3>Todo</h3><div id="todoCol"></div></div>
+          <div class="col" data-status="in_progress"><h3>In Progress</h3><div id="inProgressCol"></div></div>
+          <div class="col" data-status="done"><h3>Done</h3><div id="doneCol"></div></div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h3>Coach Loop (Active Recall)</h3>
+
+        <div id="reminders"></div>
+
+        <label>Concept</label>
+        <select id="conceptId"></select>
+
+        <label>Confidence (0-100)</label>
+        <input id="confidence" type="number" min="0" max="100" value="60" />
+
+        <label>What did you recall?</label>
+        <textarea id="recallAnswer" placeholder="Explain concept, example, pitfalls."></textarea>
+
+        <label>Session summary</label>
+        <textarea id="summary" placeholder="What you solved/reviewed and where you struggled."></textarea>
+
+        <button id="sendCheckin">Send to AI Coach</button>
+        <button id="requestNotif" class="secondary">Enable Browser Notifications</button>
+
+        <div class="feedback" id="feedbackBox">
+          <strong>AI feedback will appear here.</strong>
+        </div>
+      </section>
+    </main>
+
+    <script src="/app.js" type="module"></script>
+  </body>
+</html>
