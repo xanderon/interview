@@ -1,50 +1,53 @@
 <!doctype html>
-<html lang="en">
+<html lang="ro">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Trainer Mode</title>
+    <title>Algorithm Planner</title>
     <link rel="stylesheet" href="/styles.css" />
   </head>
   <body>
     <header>
-      <h1>Trainer Mode</h1>
+      <h1>Algorithm Planner</h1>
       <div class="sub" id="headerSub"></div>
     </header>
 
     <main>
       <section class="panel">
         <div class="kpis">
-          <div class="kpi"><div class="v" id="readiness">-</div><div class="l">Readiness</div></div>
-          <div class="kpi"><div class="v" id="coverage">-</div><div class="l">Deal-Breaker Coverage</div></div>
-          <div class="kpi"><div class="v" id="hoursGap">-</div><div class="l">Hours Since Last Study</div></div>
+          <div class="kpi"><div class="v" id="readiness">-</div><div class="l">Roadmap Progress</div></div>
+          <div class="kpi"><div class="v" id="foundationCoverage">-</div><div class="l">Foundation Coverage</div></div>
+          <div class="kpi"><div class="v" id="hoursGap">-</div><div class="l">Hours Since Study</div></div>
+          <div class="kpi"><div class="v" id="dueProblems">-</div><div class="l">Reviews Due</div></div>
           <div class="kpi"><div class="v" id="windowState">-</div><div class="l">Learning Window</div></div>
         </div>
 
-        <h3>Today's Tasks</h3>
-        <div class="grid3">
-          <div class="col" data-status="todo"><h3>Todo</h3><div id="todoCol"></div></div>
-          <div class="col" data-status="in_progress"><h3>In Progress</h3><div id="inProgressCol"></div></div>
-          <div class="col" data-status="done"><h3>Done</h3><div id="doneCol"></div></div>
-        </div>
+        <h3>Ordinea de lucru</h3>
+        <div id="roadmapPhases" class="roadmap"></div>
+
+        <h3>Checklist pe categorii</h3>
+        <div class="save-state" id="saveState">Saved</div>
+        <div id="categoriesRoot"></div>
+
+        <details id="hiddenTheory" class="theory"></details>
       </section>
 
-      <section class="panel">
-        <h3>Coach Loop (Active Recall)</h3>
+      <section class="panel coach">
+        <h3>AI Coach (pe problema)</h3>
 
         <div id="reminders"></div>
 
-        <label>Concept</label>
+        <label>Problema</label>
         <select id="conceptId"></select>
 
         <label>Confidence (0-100)</label>
         <input id="confidence" type="number" min="0" max="100" value="60" />
 
-        <label>What did you recall?</label>
-        <textarea id="recallAnswer" placeholder="Explain concept, example, pitfalls."></textarea>
+        <label>Ce ai retinut?</label>
+        <textarea id="recallAnswer" placeholder="Pattern, complexitate, edge cases, trade-offs."></textarea>
 
         <label>Session summary</label>
-        <textarea id="summary" placeholder="What you solved/reviewed and where you struggled."></textarea>
+        <textarea id="summary" placeholder="Ce ai rezolvat, ce a mers greu, ce urmeaza."></textarea>
 
         <button id="sendCheckin">Send to AI Coach</button>
         <button id="requestNotif" class="secondary">Enable Browser Notifications</button>

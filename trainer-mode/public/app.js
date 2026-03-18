@@ -1,16 +1,16 @@
 let state = null;
 let computed = null;
-let draggingTaskId = null;
+let persistQueue = Promise.resolve();
 
 const el = {
   headerSub: document.getElementById("headerSub"),
   readiness: document.getElementById("readiness"),
-  coverage: document.getElementById("coverage"),
+  foundationCoverage: document.getElementById("foundationCoverage"),
   hoursGap: document.getElementById("hoursGap"),
+  dueProblems: document.getElementById("dueProblems"),
   windowState: document.getElementById("windowState"),
-  todoCol: document.getElementById("todoCol"),
-  inProgressCol: document.getElementById("inProgressCol"),
-  doneCol: document.getElementById("doneCol"),
+  roadmapPhases: document.getElementById("roadmapPhases"),
+  categoriesRoot: document.getElementById("categoriesRoot"),
   conceptId: document.getElementById("conceptId"),
   confidence: document.getElementById("confidence"),
   recallAnswer: document.getElementById("recallAnswer"),
@@ -18,7 +18,9 @@ const el = {
   sendCheckin: document.getElementById("sendCheckin"),
   feedbackBox: document.getElementById("feedbackBox"),
   reminders: document.getElementById("reminders"),
-  requestNotif: document.getElementById("requestNotif")
+  requestNotif: document.getElementById("requestNotif"),
+  saveState: document.getElementById("saveState"),
+  hiddenTheory: document.getElementById("hiddenTheory")
 };
 
 async function api(url, opts = {}) {
@@ -39,65 +41,154 @@ function fmtNow() {
   }).format(new Date());
 }
 
+function allProblems() {
+  const out = [];
+  for (const category of state.algorithmCategories || []) {
+    for (const problem of category.problems || []) {
+      out.push({ category, problem });
+    }
+  }
+  return out;
+}
+
+function findProblem(problemId) {
+  for (const category of state.algorithmCategories || []) {
+    const found = (category.problems || []).find((p) => p.id === problemId);
+    if (found) return { category, problem: found };
+  }
+  return null;
+}
+
 function renderHeader() {
-  el.headerSub.textContent = `${fmtNow()} | Target: ${state.profile.goal}`;
+  el.headerSub.textContent = `${fmtNow()} | Focus: ${state.profile.goal}`;
 }
 
 function renderKpis() {
   el.readiness.textContent = `${computed.readiness}%`;
-  el.coverage.textContent = `${computed.dealBreakerCoverage}%`;
+  el.foundationCoverage.textContent = `${computed.foundationCoverage}%`;
   el.hoursGap.textContent = Number.isFinite(computed.hoursSinceLastStudy)
     ? computed.hoursSinceLastStudy.toFixed(1)
     : "N/A";
+  el.dueProblems.textContent = `${computed.dueProblems || 0}`;
   el.windowState.textContent = computed.inLearningWindow ? "Open" : "Closed";
 }
 
-function taskCard(task) {
-  const div = document.createElement("div");
-  div.className = "task";
-  div.draggable = true;
-  div.dataset.id = task.id;
-  div.innerHTML = `<strong>${task.title}</strong><div class="meta">${task.type} | ${task.estimateMin}m</div>`;
-
-  div.addEventListener("dragstart", () => {
-    draggingTaskId = task.id;
-  });
-  return div;
+function renderPhases() {
+  el.roadmapPhases.innerHTML = (state.phases || [])
+    .map((phase) => {
+      const items = (phase.categories || []).map((x) => `<li>${x}</li>`).join("");
+      return `<div class="phase"><h4>${phase.title}</h4><ul>${items}</ul></div>`;
+    })
+    .join("");
 }
 
-function renderTasks() {
-  el.todoCol.innerHTML = "";
-  el.inProgressCol.innerHTML = "";
-  el.doneCol.innerHTML = "";
-
-  const map = {
-    todo: el.todoCol,
-    in_progress: el.inProgressCol,
-    done: el.doneCol
-  };
-
-  for (const t of state.tasks) {
-    map[t.status].appendChild(taskCard(t));
-  }
+function problemMeta(problem) {
+  const masteryText = Number.isFinite(problem.mastery) ? `${problem.mastery}%` : "0%";
+  const nextReview = problem.nextReview || "-";
+  return `<span>mastery ${masteryText}</span> <span>next ${nextReview}</span>`;
 }
 
-function attachDropTargets() {
-  document.querySelectorAll(".col").forEach((col) => {
-    col.addEventListener("dragover", (e) => e.preventDefault());
-    col.addEventListener("drop", async () => {
-      if (!draggingTaskId) return;
-      const task = state.tasks.find((t) => t.id === draggingTaskId);
-      if (!task) return;
-      task.status = col.dataset.status;
-      await persistState();
-      renderTasks();
+function categoryStats(category) {
+  const core = category.problems.filter((p) => p.track === "core");
+  const optional = category.problems.filter((p) => p.track === "optional");
+  const coreDone = core.filter((p) => p.status === "done").length;
+  const optionalDone = optional.filter((p) => p.status === "done").length;
+  return `Core ${coreDone}/${core.length} | Optional ${optionalDone}/${optional.length}`;
+}
+
+function esc(value) {
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;");
+}
+
+function problemCard(category, problem) {
+  const checked = problem.status === "done" ? "checked" : "";
+  const statusOptions = ["todo", "in_progress", "done"]
+    .map((opt) => `<option value="${opt}" ${problem.status === opt ? "selected" : ""}>${opt}</option>`)
+    .join("");
+  const diffOptions = ["", "easy", "medium", "hard"]
+    .map((opt) => `<option value="${opt}" ${problem.difficulty === opt ? "selected" : ""}>${opt || "n/a"}</option>`)
+    .join("");
+
+  return `
+    <article class="problem" data-id="${problem.id}">
+      <div class="problem-top">
+        <label class="checkline">
+          <input type="checkbox" data-field="done" ${checked} />
+          <span class="problem-title">${esc(problem.title)}</span>
+        </label>
+        <span class="chip ${problem.track === "optional" ? "optional" : "core"}">${problem.track}</span>
+      </div>
+      <div class="meta-inline">${problemMeta(problem)}</div>
+      <div class="problem-grid">
+        <label>Status<select data-field="status">${statusOptions}</select></label>
+        <label>Difficulty<select data-field="difficulty">${diffOptions}</select></label>
+      </div>
+      <div class="problem-grid">
+        <label>Docs URL<input type="url" data-field="docsUrl" value="${esc(problem.docsUrl)}" placeholder="https://..." /></label>
+        <label>Solution Path<input type="text" data-field="solutionPath" value="${esc(problem.solutionPath)}" placeholder="/abs/path/to/solution.md" /></label>
+      </div>
+      <label>Notes<textarea data-field="notes" rows="2" placeholder="Pattern, edge cases, mistakes.">${esc(problem.notes)}</textarea></label>
+    </article>
+  `;
+}
+
+function renderCategories() {
+  el.categoriesRoot.innerHTML = (state.algorithmCategories || [])
+    .map((category) => {
+      const focus = (category.focus || []).map((f) => `<li>${f}</li>`).join("");
+      const cards = (category.problems || []).map((p) => problemCard(category, p)).join("");
+      return `
+        <section class="category" data-category-id="${category.id}">
+          <div class="category-head">
+            <h3>${category.name}</h3>
+            <div class="small">${category.phase} | ${categoryStats(category)}</div>
+          </div>
+          <details>
+            <summary>Focus category</summary>
+            <ul>${focus}</ul>
+          </details>
+          <div class="problems-list">${cards}</div>
+        </section>
+      `;
+    })
+    .join("");
+
+  el.categoriesRoot.querySelectorAll(".problem").forEach((node) => {
+    const problemId = node.dataset.id;
+    node.querySelectorAll("[data-field]").forEach((input) => {
+      const isSelect = input.tagName === "SELECT";
+      const isCheckbox = input.tagName === "INPUT" && input.type === "checkbox";
+      const field = input.dataset.field;
+      if (!field) return;
+
+      if (isSelect || isCheckbox) {
+        input.addEventListener("change", async (e) => {
+          if (field === "done") {
+            await updateProblem(problemId, { status: e.target.checked ? "done" : "todo" });
+            return;
+          }
+          await updateProblem(problemId, { [field]: e.target.value });
+        });
+      } else {
+        input.addEventListener("blur", async (e) => {
+          await updateProblem(problemId, { [field]: e.target.value });
+        });
+      }
     });
   });
 }
 
-function renderConceptSelect() {
-  el.conceptId.innerHTML = state.concepts
-    .map((c) => `<option value="${c.id}">${c.name} (${c.mastery}%)</option>`)
+function renderProblemSelect() {
+  const items = allProblems();
+  el.conceptId.innerHTML = items
+    .map(({ category, problem }) => {
+      const suffix = problem.status === "done" ? "(done)" : `(${problem.track})`;
+      return `<option value="${problem.id}">${category.name} -> ${problem.title} ${suffix}</option>`;
+    })
     .join("");
 }
 
@@ -119,15 +210,50 @@ function renderReminders(reminders) {
     .join("");
 
   if (reminders.length && Notification.permission === "granted") {
-    new Notification("Trainer Mode", { body: reminders[0].message });
+    new Notification("Algo Trainer", { body: reminders[0].message });
   }
 }
 
+function renderHiddenTheory() {
+  const notes = (state.hiddenTheory?.notes || []).map((n) => `<li>${n}</li>`).join("");
+  el.hiddenTheory.innerHTML = `
+    <summary>${state.hiddenTheory?.title || "Teorie"}</summary>
+    <ul>${notes}</ul>
+  `;
+}
+
 async function persistState() {
+  el.saveState.textContent = "Saving...";
   await api("/api/state", {
     method: "PUT",
     body: JSON.stringify({ state })
   });
+  el.saveState.textContent = `Saved at ${new Date().toLocaleTimeString("ro-RO")}`;
+}
+
+function queuePersist() {
+  persistQueue = persistQueue
+    .then(() => persistState())
+    .catch((e) => {
+      el.saveState.textContent = `Save failed: ${e.message}`;
+    });
+  return persistQueue;
+}
+
+async function updateProblem(problemId, patch) {
+  const found = findProblem(problemId);
+  if (!found) return;
+  Object.assign(found.problem, patch);
+  if (patch.status === "done") {
+    found.problem.lastReviewed = new Date().toISOString().slice(0, 10);
+  }
+  await queuePersist();
+  const data = await api("/api/state");
+  state = data.state;
+  computed = data.computed;
+  renderKpis();
+  renderCategories();
+  renderProblemSelect();
 }
 
 async function loadState() {
@@ -143,7 +269,7 @@ async function refreshReminders() {
 
 async function sendCheckin() {
   const payload = {
-    conceptId: el.conceptId.value,
+    problemId: el.conceptId.value,
     confidence: Number(el.confidence.value),
     recallAnswer: el.recallAnswer.value.trim(),
     summary: el.summary.value.trim()
@@ -155,19 +281,9 @@ async function sendCheckin() {
   });
 
   state = data.state;
-  renderConceptSelect();
-  renderTasks();
+  renderCategories();
+  renderProblemSelect();
   renderFeedback(data.ai);
-
-  const latestConcept = state.concepts.find((c) => c.id === payload.conceptId);
-  if (latestConcept) {
-    const maybeTask = state.tasks.find((t) => t.conceptId === payload.conceptId && t.status !== "done");
-    if (maybeTask && payload.confidence >= 70) {
-      maybeTask.status = "done";
-      await persistState();
-      renderTasks();
-    }
-  }
 
   await loadState();
   renderKpis();
@@ -179,9 +295,10 @@ async function init() {
   await loadState();
   renderHeader();
   renderKpis();
-  renderTasks();
-  renderConceptSelect();
-  attachDropTargets();
+  renderPhases();
+  renderCategories();
+  renderProblemSelect();
+  renderHiddenTheory();
   await refreshReminders();
 
   el.sendCheckin.addEventListener("click", () => {

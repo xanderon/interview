@@ -1,38 +1,57 @@
 :root {
-  --bg: #f6f7fb;
+  --bg: #f3f6f8;
   --panel: #ffffff;
-  --text: #1f2937;
-  --muted: #6b7280;
-  --accent: #0f766e;
-  --danger: #b91c1c;
-  --warn: #b45309;
-  --ok: #166534;
-  --border: #d1d5db;
+  --text: #1a2530;
+  --muted: #5d6a75;
+  --accent: #0a6f63;
+  --danger: #b42318;
+  --warn: #b54708;
+  --border: #d0d8df;
+  --ink: #0f172a;
 }
 
-* { box-sizing: border-box; }
+* {
+  box-sizing: border-box;
+}
+
 body {
   margin: 0;
   font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
   color: var(--text);
-  background: radial-gradient(circle at top right, #ddf4f0, transparent 35%), var(--bg);
+  background:
+    radial-gradient(circle at 10% 0%, #dff3ed 0%, transparent 30%),
+    radial-gradient(circle at 90% 10%, #e0ebff 0%, transparent 28%),
+    var(--bg);
 }
 
 header {
-  padding: 18px 22px;
+  padding: 16px 22px;
   border-bottom: 1px solid var(--border);
-  background: var(--panel);
+  background: color-mix(in srgb, var(--panel) 92%, #e9f7f3 8%);
   position: sticky;
   top: 0;
   z-index: 2;
 }
 
-h1 { margin: 0; font-size: 22px; }
-.sub { color: var(--muted); font-size: 14px; margin-top: 6px; }
+h1 {
+  margin: 0;
+  font-size: 22px;
+  letter-spacing: 0.2px;
+}
+
+h3 {
+  margin: 14px 0 10px;
+}
+
+.sub {
+  color: var(--muted);
+  font-size: 14px;
+  margin-top: 6px;
+}
 
 main {
   display: grid;
-  grid-template-columns: 1.1fr 0.9fr;
+  grid-template-columns: 1.35fr 0.65fr;
   gap: 14px;
   padding: 14px;
 }
@@ -44,51 +63,235 @@ main {
   padding: 14px;
 }
 
-.kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 12px; }
-.kpi { background: #f9fafb; border: 1px solid var(--border); border-radius: 10px; padding: 10px; }
-.kpi .v { font-size: 20px; font-weight: 700; }
-.kpi .l { font-size: 12px; color: var(--muted); }
+.kpis {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(110px, 1fr));
+  gap: 8px;
+  margin-bottom: 14px;
+}
 
-.grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-.col { background: #f9fafb; border: 1px solid var(--border); border-radius: 10px; padding: 10px; min-height: 160px; }
-.col h3 { margin: 0 0 8px 0; font-size: 14px; }
+.kpi {
+  background: #f8fbfd;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px;
+}
 
-.task {
+.kpi .v {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.kpi .l {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.roadmap {
+  display: grid;
+  gap: 8px;
+}
+
+.phase {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 10px;
+  background: #f9fcfb;
+}
+
+.phase h4 {
+  margin: 0 0 6px;
+}
+
+.phase ul {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.category {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px;
+  margin-bottom: 10px;
+  background: #fbfdff;
+}
+
+.category-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.category-head h3 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.small {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.problems-list {
+  display: grid;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.problem {
   border: 1px solid var(--border);
   border-radius: 8px;
   padding: 8px;
-  margin-bottom: 8px;
   background: #fff;
-  cursor: grab;
 }
-.task .meta { font-size: 12px; color: var(--muted); margin-top: 5px; }
 
-label { display: block; font-size: 13px; margin-top: 8px; }
-input, select, textarea, button {
+.problem-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.checkline {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+}
+
+.problem-title {
+  font-weight: 600;
+}
+
+.chip {
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+}
+
+.chip.core {
+  background: #d8f3ec;
+  color: #115e59;
+}
+
+.chip.optional {
+  background: #f3f4f6;
+  color: #4b5563;
+}
+
+.meta-inline {
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 12px;
+  display: flex;
+  gap: 8px;
+}
+
+.problem-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+label {
+  display: block;
+  font-size: 13px;
+  margin-top: 8px;
+}
+
+input,
+select,
+textarea,
+button {
   width: 100%;
   border: 1px solid var(--border);
   border-radius: 8px;
   padding: 8px;
   font: inherit;
+  background: #fff;
 }
-textarea { min-height: 86px; }
+
+textarea {
+  min-height: 82px;
+}
+
 button {
   background: var(--accent);
   color: #fff;
   border: none;
   margin-top: 10px;
   cursor: pointer;
+  font-weight: 600;
 }
-button.secondary { background: #0ea5e9; }
 
-.reminder { border-left: 4px solid var(--warn); padding: 10px; background: #fff7ed; border-radius: 8px; margin-bottom: 8px; }
-.reminder.high { border-color: var(--danger); background: #fef2f2; }
+button.secondary {
+  background: #0284c7;
+}
 
-.feedback { border: 1px dashed var(--border); border-radius: 8px; padding: 10px; background: #fcfcfd; }
-.feedback h4 { margin: 8px 0 4px; }
-.list { margin: 4px 0 0 16px; padding: 0; }
+.save-state {
+  color: var(--muted);
+  font-size: 12px;
+  margin-bottom: 8px;
+}
 
-@media (max-width: 1080px) {
-  main { grid-template-columns: 1fr; }
-  .kpis { grid-template-columns: repeat(2, 1fr); }
+.theory {
+  margin-top: 12px;
+  border-top: 1px dashed var(--border);
+  padding-top: 8px;
+  color: var(--muted);
+}
+
+.reminder {
+  border-left: 4px solid var(--warn);
+  padding: 10px;
+  background: #fff7ed;
+  border-radius: 8px;
+  margin-bottom: 8px;
+}
+
+.reminder.high {
+  border-color: var(--danger);
+  background: #fff1f1;
+}
+
+.feedback {
+  border: 1px dashed var(--border);
+  border-radius: 8px;
+  padding: 10px;
+  background: #fcfcfd;
+  margin-top: 10px;
+}
+
+.feedback h4 {
+  margin: 8px 0 4px;
+}
+
+.list {
+  margin: 4px 0 0 16px;
+  padding: 0;
+}
+
+@media (max-width: 1180px) {
+  main {
+    grid-template-columns: 1fr;
+  }
+
+  .kpis {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 760px) {
+  .kpis {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .problem-grid {
+    grid-template-columns: 1fr;
+  }
 }
